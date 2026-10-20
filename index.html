@@ -7,7 +7,7 @@
 <div id="ui"><button id="garage" class="active">GARÁZS</button><button id="valley">GREEN VALLEY</button></div><div id="hint">Húzd az ujjad a kamera forgatásához</div><div id="status">3D motor indítása…</div><div id="rotate">Fordítsd vízszintesre a telefont ↻</div>
 <script>
 // This watchdog runs even if the ES module itself fails to download or parse.
-window.__fr3dBooted=false;window.__fr3dTimer=setTimeout(()=>{if(!window.__fr3dBooted)document.querySelector('#status').textContent='Hiba: a 3D motor nem indult el. Frissítsd az oldalt; ha ismétlődik, ellenőrizd a CDN/internet elérését.'},12000);
+window.__fr3dBooted=false;window.__fr3dTimer=setTimeout(()=>{document.querySelector('#status').textContent='Betöltési hiba: a 3D motor nem indult el. Ellenőrizd az internetet, majd frissítsd az oldalt.'},10000);
 window.addEventListener('error',e=>{const s=document.querySelector('#status');if(s)s.textContent='Indítási hiba: '+(e.message||'külső fájl nem töltődött be')});window.addEventListener('unhandledrejection',e=>{const s=document.querySelector('#status');if(s)s.textContent='Betöltési hiba: '+String(e.reason||'ismeretlen').slice(0,200)});
 </script>
 <script type="module">
