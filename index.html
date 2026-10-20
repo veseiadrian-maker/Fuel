@@ -1,51 +1,62 @@
 <!doctype html>
-<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><title>Fuel Rush 3D — Visual Foundation</title>
-<style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#08131d;color:#f3f7fb;font-family:system-ui,-apple-system,sans-serif}canvas{display:block}header{position:fixed;z-index:3;top:12px;left:16px;pointer-events:none}h1{margin:0;font-size:21px;letter-spacing:2px}small{color:#a9bfd0}#ui{position:fixed;z-index:4;right:12px;top:12px;display:flex;gap:7px}button{border:1px solid #557286;background:#102638e8;color:#fff;padding:11px 13px;border-radius:10px;font-weight:700}button.active{background:#d9a72e;color:#101820}#status{position:fixed;z-index:5;left:12px;right:12px;bottom:12px;padding:11px 13px;border:1px solid #385366;border-radius:10px;background:#07131ee8;font-size:13px;line-height:1.4}#hint{position:fixed;top:72px;left:16px;color:#d2dde6;font-size:12px;z-index:3}@media(orientation:portrait){#rotate{display:flex}}#rotate{display:none;position:fixed;inset:0;z-index:10;align-items:center;justify-content:center;text-align:center;padding:28px;background:#08131ff2;font-size:22px}
-</style></head><body>
-<header><h1>FUEL <span style="color:#e6b344">RUSH</span> 3D</h1><small>STREET V8 · VISUAL FOUNDATION 01</small></header>
-<div id="ui"><button id="garage" class="active">GARÁZS</button><button id="valley">GREEN VALLEY</button></div><div id="hint">Húzd az ujjad a kamera forgatásához</div><div id="status">3D motor indítása…</div><div id="rotate">Fordítsd vízszintesre a telefont ↻</div>
-<script>
-// This watchdog runs even if the ES module itself fails to download or parse.
-window.__fr3dBooted=false;window.__fr3dTimer=setTimeout(()=>{document.querySelector('#status').textContent='Betöltési hiba: a 3D motor nem indult el. Ellenőrizd az internetet, majd frissítsd az oldalt.'},10000);
-window.addEventListener('error',e=>{const s=document.querySelector('#status');if(s)s.textContent='Indítási hiba: '+(e.message||'külső fájl nem töltődött be')});window.addEventListener('unhandledrejection',e=>{const s=document.querySelector('#status');if(s)s.textContent='Betöltési hiba: '+String(e.reason||'ismeretlen').slice(0,200)});
-</script>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><title>Fuel Rush 3D — Street V8</title>
+<style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07111d;color:#f5f7fb;font-family:system-ui,-apple-system,sans-serif}canvas{display:block}header{position:fixed;z-index:2;top:12px;left:15px;pointer-events:none}h1{margin:0;font-size:21px;letter-spacing:2px}small{color:#afc3d3}#buttons{position:fixed;z-index:3;top:12px;right:12px;display:flex;gap:7px}button{border:1px solid #536b7c;border-radius:10px;padding:10px 12px;background:#112638ed;color:white;font-weight:700}button.active{background:#e5b43d;color:#121820}#status{position:fixed;z-index:2;bottom:12px;left:12px;right:12px;background:#07131ee8;border:1px solid #385366;border-radius:10px;padding:10px 12px;font-size:12px}#hint{position:fixed;top:68px;left:16px;color:#d2dde6;font-size:12px;z-index:2}@media(orientation:portrait){#rotate{display:flex}}#rotate{display:none;position:fixed;inset:0;z-index:5;align-items:center;justify-content:center;text-align:center;padding:28px;background:#08131ff2;font-size:22px}</style></head><body>
+<header><h1>FUEL <span style="color:#e6b344">RUSH</span> 3D</h1><small>STREET V8 · CUSTOM BODY V1</small></header><div id="buttons"><button id="garage" class="active">GARÁZS</button><button id="valley">GREEN VALLEY</button></div><div id="hint">Húzd az ujjad a nézet forgatásához · csippentéssel nagyíthatsz</div><div id="status">3D jelenet indítása…</div><div id="rotate">Fordítsd vízszintesre a telefont ↻</div>
 <script type="module">
 import * as THREE from 'https://esm.sh/three@0.164.1';
-import { GLTFLoader } from 'https://esm.sh/three@0.164.1/examples/jsm/loaders/GLTFLoader.js';
-const $=s=>document.querySelector(s),status=$('#status');window.__fr3dBooted=true;clearTimeout(window.__fr3dTimer);
+const $=s=>document.querySelector(s), status=$('#status');
 try {
-const scene=new THREE.Scene();scene.background=new THREE.Color('#142434');scene.fog=new THREE.FogExp2('#9db8c2',.0028);
-const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,1000);camera.position.set(7,5,9);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xd6eaff,0x33402b,2));const sun=new THREE.DirectionalLight(0xffe2b3,3);sun.position.set(-20,35,15);scene.add(sun);
-const garage=new THREE.Group(),valley=new THREE.Group();scene.add(garage,valley);
-const material=(c,r=1,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
-function add(geo,mat,pos,group){const o=new THREE.Mesh(geo,mat);o.position.set(...pos);o.receiveShadow=true;group.add(o);return o}
-add(new THREE.CylinderGeometry(8,8,.22,80),material('#1d2b38',.35,.5),[0,-.2,0],garage);add(new THREE.CylinderGeometry(5.2,5.2,.08,80),material('#334553',.3,.5),[0,-.07,0],garage);
-for(let i=0;i<20;i++){let a=i*Math.PI/10;add(new THREE.BoxGeometry(.13,.025,.55),material('#d6a63d',.3,.25),[Math.sin(a)*4.8,-.015,Math.cos(a)*4.8],garage)}
-add(new THREE.PlaneGeometry(500,600),material('#42613a'),[0,-.2,-70],valley).rotation.x=-Math.PI/2;
-add(new THREE.PlaneGeometry(16,500),material('#292e32',.98),[0,-.12,-70],valley).rotation.x=-Math.PI/2;
-const lineMat=material('#f4edcf');for(let z=-310;z<170;z+=10){add(new THREE.PlaneGeometry(.14,4.3),lineMat,[0,-.105,z],valley).rotation.x=-Math.PI/2;for(const x of [-7.7,7.7])add(new THREE.PlaneGeometry(.18,9.5),lineMat,[x,-.105,z],valley).rotation.x=-Math.PI/2}
-const trunk=material('#594733'),greens=['#254a2e','#315c38','#3c6b40'].map(c=>material(c));let seed=881;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}function tree(x,z,s){add(new THREE.CylinderGeometry(.13*s,.22*s,2.5*s,7),trunk,[x,1.15*s,z],valley);for(let j=0;j<3;j++)add(new THREE.ConeGeometry((1.55-j*.27)*s,2.3*s,7),greens[j], [x,(2.1+j*.72)*s,z],valley)}for(let i=0;i<300;i++){const x=(9+rnd()*45)*(rnd()<.5?-1:1),z=rnd()*460-300;tree(x,z,.65+rnd()*1.45)}
-for(const x of [-8.5,8.5]){add(new THREE.BoxGeometry(.12,.3,470),material('#85949a',.45,.65),[x,.15,-70],valley);for(let z=-300;z<160;z+=5)add(new THREE.BoxGeometry(.09,.5,.09),material('#71838a',.5,.5),[x,.1,z],valley)}
-const root=new THREE.Group();scene.add(root);let mode='garage',theta=.55,phi=.28,dist=10,drag=null,loaded=false;
-const MODEL='https://raw.githubusercontent.com/JaronKBragg7337/spectral-gt-rs/main/spectral_gt_rs_game_ready.glb';
-status.textContent='Autómodell letöltése…';
-const loader=new GLTFLoader();const loadTimeout=setTimeout(()=>{if(!loaded)status.textContent='Az autómodell túl sokáig töltődik. Ellenőrizd a kapcsolatot; a modell URL-je: raw.githubusercontent.com'},25000);
-loader.load(MODEL,gltf=>{loaded=true;clearTimeout(loadTimeout);const car=gltf.scene;
-// Correct the asset orientation BEFORE measuring it. The source model's nose points +X.
-car.rotation.y=-Math.PI/2;
-car.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(m.map)m.map.colorSpace=THREE.SRGBColorSpace;if('roughness' in m)m.roughness=Math.max(.22,m.roughness??.6);}}}});
-let box=new THREE.Box3().setFromObject(car);let size=box.getSize(new THREE.Vector3());
-// Normalize to a plausible car length, then center horizontally and place tires on the floor.
-const horizontal=Math.max(size.x,size.z);const scale=horizontal>0?5.2/horizontal:1;car.scale.setScalar(scale);
-box=new THREE.Box3().setFromObject(car);const center=box.getCenter(new THREE.Vector3());car.position.x-=center.x;car.position.z-=center.z;car.position.y-=box.min.y;
-root.add(car);root.position.y=.015;status.textContent='3D autó betöltve. Húzd az ujjad a forgatáshoz.';
-},xhr=>{if(xhr.total)status.textContent='Autómodell letöltése: '+Math.round(xhr.loaded/xhr.total*100)+'%'},err=>{clearTimeout(loadTimeout);status.textContent='Az autómodell nem tölthető be. Hiba: '+(err?.message||'hálózati vagy CORS-hiba')+'. A pálya ettől még megtekinthető.';console.error(err)});
-function setMode(m){mode=m;garage.visible=m==='garage';valley.visible=m==='valley';$('#garage').classList.toggle('active',mode==='garage');$('#valley').classList.toggle('active',mode==='valley');scene.background.set(mode==='garage'?'#142434':'#91b8ce');scene.fog.color.set(mode==='garage'?'#9db8c2':'#a4c3cc');if(loaded)status.textContent=mode==='garage'?'Garázs · húzd az ujjad a modell forgatásához':'Green Valley · vizuális pályaelőnézet'}$('#garage').onclick=()=>setMode('garage');$('#valley').onclick=()=>setMode('valley');
-renderer.domElement.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;theta+=(e.clientX-drag.x)*.008;phi=THREE.MathUtils.clamp(phi+(e.clientY-drag.y)*.005,-.2,1);drag={x:e.clientX,y:e.clientY}});renderer.domElement.addEventListener('pointerup',()=>drag=null);renderer.domElement.addEventListener('pointercancel',()=>drag=null);renderer.domElement.addEventListener('wheel',e=>dist=THREE.MathUtils.clamp(dist+e.deltaY*.012,6,24),{passive:true});
-let last=0;function animate(t){requestAnimationFrame(animate);const dt=Math.min((t-last)/1000,.05);last=t;if(mode==='garage'&&!drag)theta+=dt*.08;const target=mode==='garage'?new THREE.Vector3(Math.sin(theta)*Math.cos(phi)*dist,2.8+Math.sin(phi)*dist*.5,Math.cos(theta)*Math.cos(phi)*dist):new THREE.Vector3(Math.sin(theta)*7,4+Math.sin(phi)*3,12+Math.cos(theta)*2);camera.position.lerp(target,.08);camera.lookAt(0,.65,0);renderer.render(scene,camera)}requestAnimationFrame(animate);
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-}catch(err){status.textContent='3D indítási hiba: '+(err?.message||String(err));console.error(err)}
+const scene=new THREE.Scene(); scene.background=new THREE.Color('#142333'); scene.fog=new THREE.Fog('#a8c1c9',35,170);
+const camera=new THREE.PerspectiveCamera(38,innerWidth/innerHeight,.1,500); camera.position.set(7,4.5,8);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.5)); renderer.setSize(innerWidth,innerHeight); renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.15; document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe1efff,0x35412f,2.2)); const sun=new THREE.DirectionalLight(0xffe0b1,3.3);sun.position.set(-8,14,9);scene.add(sun); const rim=new THREE.DirectionalLight(0x4e9cff,2);rim.position.set(8,5,-10);scene.add(rim);
+const garage=new THREE.Group(), valley=new THREE.Group();scene.add(garage,valley);
+const mat=(c,r=.45,m=.1,extra={})=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m,...extra});
+const paint=mat('#123f75',.23,.72,{metalness:.78}), dark=mat('#0b1118',.35,.3), glass=mat('#101f2b',.18,.5,{metalness:.35}), chrome=mat('#aebbc5',.22,.8), rubber=mat('#111316',.86,.02), rimMat=mat('#687782',.27,.85), red=mat('#d22d25',.3,.2), lamp=mat('#d8f3ff',.18,.2,{emissive:'#b7eaff',emissiveIntensity:1.4}), tail=mat('#ff3527',.22,.2,{emissive:'#a80000',emissiveIntensity:1.2});
+function mesh(g,m,p,par,rot){const o=new THREE.Mesh(g,m);o.position.set(...p);if(rot)o.rotation.set(...rot);o.castShadow=true;o.receiveShadow=true;par.add(o);return o}
+function box(m,s,p,par,r=[0,0,0]){return mesh(new THREE.BoxGeometry(...s),m,p,par,r)}
+// Display plinth
+mesh(new THREE.CylinderGeometry(6.8,6.8,.22,96),mat('#1a2936',.28,.65),[0,-.22,0],garage);mesh(new THREE.CylinderGeometry(5.7,5.7,.06,96),mat('#334756',.24,.65),[0,-.08,0],garage);
+for(let i=0;i<32;i++){let a=i*Math.PI/16;box(mat('#d7a33b',.28,.5),[.1,.025,.38],[Math.sin(a)*5.35,-.04,Math.cos(a)*5.35],garage,[0,a,0])}
+// Roadside environment
+mesh(new THREE.PlaneGeometry(300,380),mat('#49683d',1),[0,-.23,-70],valley,[-Math.PI/2,0,0]);mesh(new THREE.PlaneGeometry(15,380),mat('#282d32',.96),[0,-.13,-70],valley,[-Math.PI/2,0,0]);const line=mat('#eee6cb',.8);for(let z=-250;z<120;z+=11){mesh(new THREE.PlaneGeometry(.13,4.8),line,[0,-.105,z],valley,[-Math.PI/2,0,0]);for(let x of [-7.1,7.1])mesh(new THREE.PlaneGeometry(.16,8),line,[x,-.105,z],valley,[-Math.PI/2,0,0])}
+const bark=mat('#574632'), leaf=[mat('#21472d',1),mat('#315d37',1),mat('#477447',1)];let seed=2026;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}for(let i=0;i<220;i++){let x=(9+rnd()*34)*(rnd()<.5?-1:1),z=-250+rnd()*370,s=.7+rnd()*1.2;mesh(new THREE.CylinderGeometry(.12*s,.2*s,2.3*s,8),bark,[x,1.05*s,z],valley);for(let j=0;j<3;j++)mesh(new THREE.ConeGeometry((1.45-j*.28)*s,2.2*s,8),leaf[j],[x,(2+j*.68)*s,z],valley)}
+for(let x of [-8,8]){box(mat('#8b989b',.5,.7),[.13,.28,370],[x,.12,-65],valley);for(let z=-245;z<120;z+=6)box(chrome,[.08,.44,.08],[x,.05,z],valley)}
+// Street V8: single continuous sculpted side silhouette, extruded across car width.
+const car=new THREE.Group();garage.add(car);
+const side=new THREE.Shape();
+side.moveTo(-2.65,.48); side.lineTo(-2.58,.72); side.lineTo(-2.25,.83);
+// rear wheel arch cutout represented by a smooth upward arc in the outline
+side.lineTo(-2.07,.48); side.absarc(-1.55,.48,.52,Math.PI,0,false); side.lineTo(-.55,.88); side.lineTo(.58,.88); side.lineTo(1.03,.48); side.absarc(1.55,.48,.52,Math.PI,0,false); side.lineTo(2.15,.83); side.lineTo(2.58,.72); side.lineTo(2.68,.52); side.lineTo(2.55,.42); side.lineTo(-2.52,.42); side.close();
+const bodyGeo=new THREE.ExtrudeGeometry(side,{depth:1.68,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.07,bevelThickness:.06,curveSegments:16});bodyGeo.translate(0,0,-.84);const body=mesh(bodyGeo,paint,[0,0,0],car);body.castShadow=true;
+// Hood and trunk sculpted panels
+const hood=mesh(new THREE.BoxGeometry(1.35,.12,1.45),paint,[1.72,.82,0],car,[0,0,-.025]); hood.scale.set(1,.8,1);
+mesh(new THREE.BoxGeometry(.62,.1,1.43),paint,[-2.18,.81,0],car,[0,0,.025]);
+// Cabin with sloped windshield and rear glass: compact fastback profile
+const cabShape=new THREE.Shape();cabShape.moveTo(-1.28,.86);cabShape.lineTo(-.78,1.53);cabShape.quadraticCurveTo(-.66,1.64,-.48,1.64);cabShape.lineTo(.52,1.64);cabShape.quadraticCurveTo(.7,1.61,.82,1.45);cabShape.lineTo(1.22,.86);cabShape.close();const cabGeo=new THREE.ExtrudeGeometry(cabShape,{depth:1.26,bevelEnabled:true,bevelSegments:3,bevelSize:.045,bevelThickness:.035,curveSegments:12});cabGeo.translate(0,0,-.63);mesh(cabGeo,paint,[0,0,0],car);
+// Dark side glass panels
+for(let z of [-.645,.645]){const winShape=new THREE.Shape();winShape.moveTo(-.99,.98);winShape.lineTo(-.62,1.48);winShape.lineTo(-.42,1.52);winShape.lineTo(.37,1.52);winShape.lineTo(.69,1.43);winShape.lineTo(1.02,.98);winShape.close();const wg=new THREE.ShapeGeometry(winShape);mesh(wg,glass,[0,0,z],car,[0,0,0]);}
+// front/rear glass slanted planes
+mesh(new THREE.PlaneGeometry(1.12,.48),glass,[-.58,1.34,0],car,[0,0,-.52]);mesh(new THREE.PlaneGeometry(1.02,.43),glass,[.86,1.32,0],car,[0,0,.58]);
+// roof panel and roof edge trim
+mesh(new THREE.BoxGeometry(.95,.09,1.27),paint,[.02,1.65,0],car,[0,0,0]);
+// Wheel assembly: four aligned wheels, detailed rim discs, hubs and spokes
+function wheel(x,z){const w=new THREE.Group();w.position.set(x,.49,z);car.add(w);mesh(new THREE.CylinderGeometry(.455,.455,.27,40),rubber,[0,0,0],w,[Math.PI/2,0,0]);mesh(new THREE.CylinderGeometry(.305,.305,.285,32),rimMat,[0,0,0],w,[Math.PI/2,0,0]);mesh(new THREE.CylinderGeometry(.22,.22,.29,32),dark,[0,0,0],w,[Math.PI/2,0,0]);for(let i=0;i<10;i++){let a=i*Math.PI/5;mesh(new THREE.BoxGeometry(.055,.34,.045),chrome,[Math.sin(a)*.11,Math.cos(a)*.11,0],w,[0,0,-a]);}mesh(new THREE.CylinderGeometry(.075,.075,.31,24),chrome,[0,0,0],w,[Math.PI/2,0,0]);mesh(new THREE.CylinderGeometry(.25,.25,.012,32),red,[0,.005,.145],w,[Math.PI/2,0,0]);}
+for(let x of [-1.55,1.55])for(let z of [-.91,.91])wheel(x,z);
+// Front fascia, grille, headlights and rear lamps
+box(dark,[.16,.26,.88],[2.61,.61,0],car);box(chrome,[.035,.045,.57],[2.704,.62,0],car);for(let z of [-.55,.55]){box(lamp,[.1,.14,.34],[2.59,.73,z],car,[0,0,-.08]);box(dark,[.12,.035,.38],[2.59,.63,z],car)}
+box(dark,[.12,.17,.78],[-2.59,.59,0],car);for(let z of [-.56,.56])box(tail,[.08,.13,.28],[-2.66,.72,z],car);
+// mirrors, door seams, handles, fender accents and exhaust
+for(let z of [-.84,.84]){mesh(new THREE.SphereGeometry(.12,16,12),dark,[-.55,1.12,z],car).scale.set(1,.55,.8);box(dark,[.025,.34,.012],[-.2,.88,z*1.005],car);box(chrome,[.08,.025,.025],[-.03,1.02,z*1.015],car);box(dark,[.6,.04,.035],[1.68,.91,z*1.02],car);}
+for(let z of [-.44,.44])mesh(new THREE.CylinderGeometry(.075,.075,.2,16),chrome,[-2.72,.48,z],car,[Math.PI/2,0,0]);
+// hood vents and broad front splitter
+for(let z of [-.3,0,.3])box(dark,[.42,.025,.055],[1.8,.895,z],car,[0,0,-.025]);box(dark,[.26,.055,1.52],[2.64,.43,0],car);
+// Green Valley and garage visibility
+function mode(m){garage.visible=m==='garage';valley.visible=m==='valley';$('#garage').classList.toggle('active',m==='garage');$('#valley').classList.toggle('active',m==='valley');scene.background.set(m==='garage'?'#142333':'#9dbacb');scene.fog.color.set(m==='garage'?'#a8c1c9':'#a8c1c9');status.textContent=m==='garage'?'Street V8 · egybefüggő saját karosszériamodell':'Green Valley · pályaelőnézet';}
+$('#garage').onclick=()=>mode('garage');$('#valley').onclick=()=>mode('valley');
+let theta=.65,phi=.26,dist=9,drag=null;renderer.domElement.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;theta+=(e.clientX-drag.x)*.008;phi=THREE.MathUtils.clamp(phi+(e.clientY-drag.y)*.005,-.12,.8);drag={x:e.clientX,y:e.clientY}});renderer.domElement.addEventListener('pointerup',()=>drag=null);renderer.domElement.addEventListener('pointercancel',()=>drag=null);renderer.domElement.addEventListener('wheel',e=>dist=THREE.MathUtils.clamp(dist+e.deltaY*.012,5.5,16),{passive:true});
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
+function animate(){requestAnimationFrame(animate);if(!drag&&garage.visible)theta+=.0015;const target=garage.visible?new THREE.Vector3(Math.sin(theta)*Math.cos(phi)*dist,1.5+Math.sin(phi)*dist*.5,Math.cos(theta)*Math.cos(phi)*dist):new THREE.Vector3(Math.sin(theta)*6,4,12+Math.cos(theta)*2);camera.position.lerp(target,.09);camera.lookAt(0,.8,0);renderer.render(scene,camera)}
+mode('garage');status.textContent='Street V8 betöltve · nincs külső autómodell';animate();
+}catch(e){status.textContent='3D indítási hiba: '+(e.message||e);console.error(e)}
 </script></body></html>
