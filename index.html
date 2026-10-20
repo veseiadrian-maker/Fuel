@@ -25,15 +25,15 @@ for(let x of [-8,8]){box(mat('#8b989b',.5,.7),[.13,.28,370],[x,.12,-65],valley);
 // Street V8: single continuous sculpted side silhouette, extruded across car width.
 const car=new THREE.Group();garage.add(car);
 const side=new THREE.Shape();
-side.moveTo(-2.68,.48); side.lineTo(-2.62,.72); side.lineTo(-2.28,.84); side.lineTo(-1.72,.88); side.lineTo(-1.12,.92); side.lineTo(-.58,.91); side.lineTo(.48,.91); side.lineTo(1.12,.88); side.lineTo(1.82,.86); side.lineTo(2.48,.76); side.lineTo(2.68,.59); side.lineTo(2.60,.43); side.lineTo(-2.55,.43); side.closePath();
+side.moveTo(-2.68,.48); side.lineTo(-2.62,.72); side.lineTo(-2.28,.84); side.lineTo(-1.72,.88); side.lineTo(-1.12,.92); side.lineTo(-.58,.91); side.lineTo(.48,.91); side.lineTo(1.12,.88); side.lineTo(1.82,.86); side.lineTo(2.48,.76); side.lineTo(2.68,.59); side.lineTo(2.60,.43); side.lineTo(-2.55,.43); side.close();
 const bodyGeo=new THREE.ExtrudeGeometry(side,{depth:1.68,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.07,bevelThickness:.06,curveSegments:16});bodyGeo.translate(0,0,-.84);const body=mesh(bodyGeo,paint,[0,0,0],car);body.castShadow=true;
 // Hood and trunk sculpted panels
 const hood=mesh(new THREE.BoxGeometry(1.35,.12,1.45),paint,[1.72,.82,0],car,[0,0,-.025]); hood.scale.set(1,.8,1);
 mesh(new THREE.BoxGeometry(.62,.1,1.43),paint,[-2.18,.81,0],car,[0,0,.025]);
 // Cabin with sloped windshield and rear glass: compact fastback profile
-const cabShape=new THREE.Shape();cabShape.moveTo(-1.28,.86);cabShape.lineTo(-.78,1.53);cabShape.quadraticCurveTo(-.66,1.64,-.48,1.64);cabShape.lineTo(.52,1.64);cabShape.quadraticCurveTo(.7,1.61,.82,1.45);cabShape.lineTo(1.22,.86);cabShape.closePath();const cabGeo=new THREE.ExtrudeGeometry(cabShape,{depth:1.26,bevelEnabled:true,bevelSegments:3,bevelSize:.045,bevelThickness:.035,curveSegments:12});cabGeo.translate(0,0,-.63);mesh(cabGeo,paint,[0,0,0],car);
+const cabShape=new THREE.Shape();cabShape.moveTo(-1.28,.86);cabShape.lineTo(-.78,1.53);cabShape.quadraticCurveTo(-.66,1.64,-.48,1.64);cabShape.lineTo(.52,1.64);cabShape.quadraticCurveTo(.7,1.61,.82,1.45);cabShape.lineTo(1.22,.86);cabShape.close();const cabGeo=new THREE.ExtrudeGeometry(cabShape,{depth:1.26,bevelEnabled:true,bevelSegments:3,bevelSize:.045,bevelThickness:.035,curveSegments:12});cabGeo.translate(0,0,-.63);mesh(cabGeo,paint,[0,0,0],car);
 // Dark side glass panels
-for(let z of [-.645,.645]){const winShape=new THREE.Shape();winShape.moveTo(-.99,.98);winShape.lineTo(-.62,1.48);winShape.lineTo(-.42,1.52);winShape.lineTo(.37,1.52);winShape.lineTo(.69,1.43);winShape.lineTo(1.02,.98);winShape.closePath();const wg=new THREE.ShapeGeometry(winShape);mesh(wg,glass,[0,0,z],car,[0,0,0]);}
+for(let z of [-.645,.645]){const winShape=new THREE.Shape();winShape.moveTo(-.99,.98);winShape.lineTo(-.62,1.48);winShape.lineTo(-.42,1.52);winShape.lineTo(.37,1.52);winShape.lineTo(.69,1.43);winShape.lineTo(1.02,.98);winShape.close();const wg=new THREE.ShapeGeometry(winShape);mesh(wg,glass,[0,0,z],car,[0,0,0]);}
 // front/rear glass slanted planes
 mesh(new THREE.PlaneGeometry(1.12,.48),glass,[-.58,1.34,0],car,[0,0,-.52]);mesh(new THREE.PlaneGeometry(1.02,.43),glass,[.86,1.32,0],car,[0,0,.58]);
 // roof panel and roof edge trim
